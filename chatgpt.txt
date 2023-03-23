@@ -1,0 +1,92 @@
+import socket
+import threading
+import pickle
+
+class ReplicatedDatastore:
+    def __init__(self, node_id, node_ips, quorum_size):
+        self.node_id = node_id
+        self.node_ips = node_ips
+        self.quorum_size = quorum_size
+        self.data = {}
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sock.bind(('localhost', self.node_ips[self.node_id]))
+        self.sock.listen(1)
+
+    def start(self):
+        while True:
+            conn, addr = self.sock.accept()
+            data = conn.recv(1024)
+            message = pickle.loads(data)
+            if message['type'] == 'put':
+                self.put(message['key'], message['value'])
+                response = {'status': 'success'}
+            elif message['type'] == 'get':
+                value = self.get(message['key'])
+                response = {'status': 'success', 'value': value}
+            else:
+                response = {'status': 'error', 'message': 'Unknown message type'}
+            conn.sendall(pickle.dumps(response))
+            conn.close()
+
+    def put(self, key, value):
+        self.data[key] = value
+
+    def get(self, key):
+        return self.data.get(key)
+
+    def call_method(self, node_id, method_name, *args):
+        ip = 'localhost'
+        port = self.node_ips[node_id]
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.connect((ip, port))
+            message = {'type': method_name, 'args': args}
+            s.sendall(pickle.dumps(message))
+            response = pickle.loads(s.recv(1024))
+        return response
+
+    def get_quorum(self, nodes):
+        quorum = []
+        for node_id in nodes:
+            try:
+                response = self.call_method(node_id, 'ping')
+                if response['status'] == 'success':
+                    quorum.append(node_id)
+            except:
+                pass
+            if len(quorum) >= self.quorum_size:
+                break
+        return quorum
+
+    def ping(self):
+        return {'status': 'success'}
+
+    def put_quorum(self, key, value):
+        nodes = range(len(self.node_ips))
+        quorum = self.get_quorum(nodes)
+        responses = []
+        for node_id in quorum:
+            try:
+                response = self.call_method(node_id, 'put', key, value)
+            except:
+                response = {'status': 'error', 'message': 'Node unreachable'}
+            responses.append(response)
+        success_count = len([r for r in responses if r.get('status') == 'success'])
+        if success_count >= self.quorum_size:
+            return {'status': 'success'}
+        else:
+            return {'status': 'error', 'message': 'Quorum not reached'}
+
+    def get_quorum_value(self, key):
+        nodes = range(len(self.node_ips))
+        quorum = self.get_quorum(nodes)
+        values = []
+        for node_id in quorum:
+            try:
+                response = self.call_method(node_id, 'get', key)
+                if response.get('status') == 'success':
+                    values.append(response.get('value'))
+            except:
+                pass
+            if len(values) >= self.quorum_size:
+                break
+        if len(values) <

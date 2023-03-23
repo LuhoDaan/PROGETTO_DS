@@ -1,0 +1,13 @@
+Ogni server avrà 1 socket (dovrebbe bastare)
+Quando un client si connette ad uno dei server riceve una lista di tutti i server.
+
+
+Implementare put() potrebbe essere molto semplice, troppo semplice a quano pare
+    server: 
+    client:
+
+
+Implementare get()
+    server: risponde con l'ultimo valore o null per la chiave ricevuta
+    client: fa la richiesta (chiave), confronta le risposte e se riceve da N/2+1 server lo mismo acceta il valore (stampa a video)
+
