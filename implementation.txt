@@ -1,0 +1,121 @@
+class Node:
+    def __init__(self, host, port):
+        self.host = host
+        self.port = port
+        self.data = {}
+        self.timestamps = {}
+        self.start()
+
+    def start(self):
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sock.bind((self.host, self.port))
+        self.sock.listen(5)
+        self.thread = threading.Thread(target=self.accept_connections)
+        self.thread.start()
+
+    def accept_connections(self):
+        while True:
+            conn, addr = self.sock.accept()
+            threading.Thread(target=self.handle_client, args=(conn, addr)).start()
+
+    def handle_client(self, conn, addr):
+        # Receive a message from the client or another node and handle it appropriately
+        with conn:
+            while True:
+                data = conn.recv(1024)
+                if not data:
+                    break
+                message = pickle.loads(data)
+                if message.msg_type == MessageType.PUT_REQUEST:
+                    self.handle_put_request(message, conn)
+                elif message.msg_type == MessageType.GET_REQUEST:
+                    self.handle_get_request(message, conn)
+
+    def handle_put_request(self, message, conn):
+        # Handle a PUT request from another node or client
+        if message.key not in self.timestamps or message.timestamp > self.timestamps[message.key]:
+            self.timestamps[message.key] = message.timestamp
+            self.data[message.key] = message.value
+            response = Message(MessageType.PUT_RESPONSE, message.key)
+        else:
+            response = Message(MessageType.PUT_RESPONSE, message.key, timestamp=self.timestamps[message.key])
+        conn.sendall(pickle.dumps(response))
+
+    def handle_get_request(self, message, conn):
+        # Handle a GET request from another node or client
+        if message.key in self.data:
+            response = Message(MessageType.GET_RESPONSE, message.key, self.data[message.key], self.timestamps[message.key])
+        else:
+            response = Message(MessageType.GET_RESPONSE, message.key)
+        conn.sendall(pickle.dumps(response))
+
+    def put(self, key, value, timestamp):
+        # Store the key-value pair with the given timestamp
+        self.data[key] = value
+        self.timestamps[key] = timestamp
+
+    def get(self, key):
+        # Retrieve the value and timestamp for a given key
+        if key in self.data:
+            return self.data[key], self.timestamps[key]
+        else:
+            return None, None
+
+
+class KVStore:
+    def __init__(self, nodes, read_quorum, write_quorum):
+        self.nodes = nodes
+        self.read_quorum = read_quorum
+        self.write_quorum = write_quorum
+
+    def put(self, key, value):
+        # Implement the PUT operation using the write quorum
+        timestamps = {}
+        for node in self.nodes:
+            timestamp = int(time.time() * 1000)
+            message = Message(MessageType.PUT_REQUEST, key, value, timestamp)
+            response = self.send_message(node, message)
+            if response and response.msg_type == MessageType.PUT_RESPONSE:
+                if response.timestamp:
+                    timestamps[node] = response.timestamp
+            else:
+                return False
+        if len(timestamps) < self.write_quorum:
+            return False
+        max_timestamp_node = max(timestamps, key=timestamps.get)
+        message = Message(MessageType.PUT_REQUEST, key, value, timestamps[max_timestamp_node])
+        for node in self.nodes:
+            if node != max_timestamp_node:
+                self.send_message(node, message)
+        return True
+
+    def get(self, key):
+        # Implement the GET operation using the read quorum
+        values = []
+        timestamps = []
+        for node in self.nodes:
+            message = Message(MessageType.GET_REQUEST, key)
+            response = self.send_message(node, message)
+            if response and response.msg_type == MessageType.GET_RESPONSE and response.value:
+                values.append(response.value)
+                timestamps.append(response.timestamp)
+        if len(values) < self.read_quorum:
+            return None, None
+        max_timestamp = max(timestamps)
+        max_timestamp_index = timestamps.index(max_timestamp)
+        return values[max_timestamp_index], max_timestamp
+
+    def send_message(self, node, message):
+        # Send a message to the specified node and receive its response
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+            sock.connect((node.host, node.port))
+            sock.sendall(pickle.dumps(message))
+            data = sock.recv(1024)
+            if data:
+                return pickle.loads(data)
+            else:
+                return None
+
+    def receive_message(self, conn):
+        # Receive a message from a node's connection
+        pass

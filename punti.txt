@@ -11,3 +11,7 @@ Implementare get()
     server: risponde con l'ultimo valore o null per la chiave ricevuta
     client: fa la richiesta (chiave), confronta le risposte e se riceve da N/2+1 server lo mismo acceta il valore (stampa a video)
 
+il sistema di lookup o dobbiamo implementare con un oggetto tipo load balancer o ci basta dare al client (hardcoded o passandoglieli all'invocazione) 
+gli indirizzi dei server presenti supponendo di avere un sistema di lookup che ritorni la lista delle socket
+
+Possiamo dare per buono che il timestamp sia reliable come metodo per distinguere gli aggiornamenti
