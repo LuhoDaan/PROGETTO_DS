@@ -15,3 +15,12 @@ il sistema di lookup o dobbiamo implementare con un oggetto tipo load balancer o
 gli indirizzi dei server presenti supponendo di avere un sistema di lookup che ritorni la lista delle socket
 
 Possiamo dare per buono che il timestamp sia reliable come metodo per distinguere gli aggiornamenti
+
+we want to introduce version numbers such that the client can know when a new version of the file is provided
+
+How to manage failed writes!!:
+    - READ REPAIR, when a client receives from a read to some server a old value this can suggest an update.
+    - Anti-Entropy Process, a background process that asks other nodes for new data to be sure the data is the most recent.
+
+
+Dobbiamo parlare della conflict resolution nel caso di processi che fanno write write.
