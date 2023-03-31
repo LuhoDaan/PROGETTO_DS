@@ -15,5 +15,5 @@ class Message:
     def serialize(self):
         return pickle.dumps(self)
     
-    def deserialize(data):
+    def deserialize(self,data):
         return pickle.loads(data)

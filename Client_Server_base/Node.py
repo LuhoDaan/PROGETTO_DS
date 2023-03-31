@@ -4,8 +4,7 @@ import threading
 import Message
 from Message import MessageType, Message
 
-HOST = "localhost"
-PORT = 53000
+
 BUFFER_SIZE = 1024
 
 class Node:
@@ -37,7 +36,7 @@ class Node:
             self.send_ack(conn)
         elif msg.msg_type == MessageType.GET_REQUEST:
             value, timestamp = self.get(msg.key)
-            response = Message(MessageType.GET_RESPONSE, msg.key, value, timestamp)
+            response = Message(MessageType.GET_REQUEST, msg.key, value, timestamp)
             self.send_message(conn, response)
         conn.close()
 
@@ -47,14 +46,19 @@ class Node:
             self.timestamps[key] = timestamp
 
     def get(self, key):
+        if key not in self.data:
+            return 'null', 0
         return self.data.get(key, None), self.timestamps.get(key, 0)
 
     def send_ack(self, conn):
         conn.sendall("ACK".encode('utf-8'))
 
     def send_message(self, conn, message):
-        data = pickle.dumps(message)
-        conn.sendall(data)
+     # Serialize the message
+        data = message.serialize()
+        msg_len = len(data)
+        header = msg_len.to_bytes(4, byteorder='big')
+        conn.sendall(header + data)
 
     def receive_message(self, conn):
         
@@ -80,8 +84,7 @@ class Node:
         data = b"".join(chunks)
 
         # Print the message
-        message = Message.deserialize(data)
+        message = Message.deserialize(self,data)
         print("Received message:", message.msg_type, message.key, message.value, message.timestamp)
         return message
 
-nodo = Node(HOST, PORT)
