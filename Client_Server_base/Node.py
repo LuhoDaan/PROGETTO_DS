@@ -87,4 +87,10 @@ class Node:
         message = Message.deserialize(self,data)
         print("Received message:", message.msg_type, message.key, message.value, message.timestamp)
         return message
-
+    
+    def print_data(self):
+        print("Data:")
+        print("{:<10} {:<10} {:<20}".format("Key", "Value", "Timestamp"))
+        for key in self.data:
+            value, timestamp = self.get(key)
+            print("{:<10} {:<10} {:<20}".format(key, value, timestamp))

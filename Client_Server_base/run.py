@@ -3,6 +3,11 @@ from client import Client
 
 #PARTE SERVER
 
+class NodeF:
+    def __init__(self, host, port):
+        self.host = host
+        self.port = port
+
 PORTE = 55500 
 BUFFER_SIZE = 1024
 HOST = "localhost"
@@ -15,7 +20,9 @@ NUMBER_NODES= int(input('Hello User! \n How many Nodes would you like to have on
 HOST = input('Insert the IP of the other machine please: \n')
 PORTE = int(input("What's the starting available port?"))
 for i in range(NUMBER_NODES):
-    nodes.append(Node(HOST,PORTE+i))
+    Node(HOST,PORTE+i)
+    nodes.append(NodeF(HOST,PORTE+i))
+
 
 TOTAL_NODES = NUMBER_NODES+OLD_NODES
 
@@ -50,5 +57,10 @@ while True:
         print("Stopping interaction.")
         break
 
+    elif command == "PRINT":
+        for node in nodes[:OLD_NODES]:
+            node.print_data()
+
     else:
         print("Invalid command. Please enter PUT, GET, or STOP.")
+    
