@@ -1,9 +1,7 @@
-import pickle
 import socket
 import threading
 import Message
 from Message import MessageType, Message
-
 
 BUFFER_SIZE = 1024
 

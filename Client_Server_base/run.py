@@ -1,5 +1,6 @@
 from Node import Node
 from client import Client
+from getIp import get_local_ip
 
 #PARTE SERVER
 
@@ -8,9 +9,10 @@ class NodeF:
         self.host = host
         self.port = port
 
-PORTE = 55500 
+PORTE = 55500
 BUFFER_SIZE = 1024
-HOST = "localhost"
+HOST = get_local_ip()
+print(f'Your IP is {HOST}')
 NUMBER_NODES= int(input('Hello User! \n How many Nodes would you like to have on your machine?\n'))
 nodes=[]
 for i in range(NUMBER_NODES):
@@ -20,7 +22,7 @@ NUMBER_NODES= int(input('Hello User! \n How many Nodes would you like to have on
 HOST = input('Insert the IP of the other machine please: \n')
 PORTE = int(input("What's the starting available port?"))
 for i in range(NUMBER_NODES):
-    Node(HOST,PORTE+i)
+    NodeF(HOST,PORTE+i)
     nodes.append(NodeF(HOST,PORTE+i))
 
 

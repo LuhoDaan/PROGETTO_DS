@@ -46,7 +46,6 @@ class Client:
                 print(f"Error connecting to node {node.host}:{node.port} - {e}")
             if ack_count >= self.write_quorum:
                 print('Success!')
-                break 
         
 
     def get(self, key):
