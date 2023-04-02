@@ -1,17 +1,6 @@
 import socket
 import time
-#import argparse
 from Message import Message, MessageType
-
-# defined command line options
-# this also generates --help and error handling
-# CLI=argparse.ArgumentParser()
-# CLI.add_argument(
-#   "--lista",  # name on the CLI - drop the `--` for positional/required parameters
-#   nargs="*",  # 0 or more values expected => creates a list
-#   default=[],  # default if nothing is provided
-# )
-#nel client dobbiamo decidere quanti server contattare per far si che possa fare put e get
 
 BUFFER_SIZE = 1024
 class Node:
@@ -28,7 +17,7 @@ class Client:
     def connect_to_node(self, node):
         conn = socket.create_connection((node.host, node.port), timeout=10)
         return conn
-    
+
     def put(self, key, value):
         timestamp = int(time.time() * 1000)
         ack_count = 0
@@ -44,9 +33,8 @@ class Client:
                 conn.close()
             except Exception as e:
                 print(f"Error connecting to node {node.host}:{node.port} - {e}")
-            if ack_count >= self.write_quorum:
-                print('Success!')
-        
+        if ack_count >= self.write_quorum:
+            print('Success!')
 
     def get(self, key):
         responses = []
@@ -84,7 +72,7 @@ class Client:
 
     def receive_ack(self, conn):
         """returns the ack"""
-        return conn.recv(4).decode("utf-8") 
+        return conn.recv(4).decode("utf-8")
 
     def receive_message(self, conn):
     
@@ -113,39 +101,3 @@ class Client:
         message = Message.deserialize(self,data)
         #print("Received message:", message.msg_type, message.key, message.value, message.timestamp)
         return message
-
-
-
-
-# def client():
-
-#     nodes = CLI.parse_args()    #questa parte serve per passargli la lista di ip:porta, però dobbiamo 
-#                                 #infilarla nell'init e salvare le variabili come self in qualche modo
-#     if nodes.lista == []:
-#         print ("errore")
-#         return
-#     print(nodes.lista[0])
-
-#     ip, porta=nodes.lista[0].split(':')
-
-#     print(ip)
-#     print(porta)
-
-#     #choose a random set of servers from the list
-#     write_quorum = random.sample(nodes.lista, w_quorum_n(len(nodes.lista)))
-#     read_quorum = random.sample(nodes.lista, r_quorum_n(len(nodes.lista)))
-
-
-
-
-#parte dimostrativa
-# HOST = "localhost"
-# PORT = 54000
-# nodo = Node(HOST, PORT)
-
-# client = Client([nodo], 1, 1)
-
-# client.put("ciao", "mondo")
-# client.put('puppa','lafava')
-# client.get('puppa')
-# client.get('mammt')

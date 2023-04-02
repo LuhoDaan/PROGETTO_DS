@@ -2,8 +2,6 @@ from Node import Node
 from client import Client
 from getIp import get_local_ip
 
-#PARTE SERVER
-
 class NodeF:
     def __init__(self, host, port):
         self.host = host
