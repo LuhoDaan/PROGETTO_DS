@@ -4,6 +4,7 @@ import pickle
 class MessageType(Enum):
     PUT_REQUEST = 1
     GET_REQUEST = 2
+    ANTIENTROPY = 3
 
 class Message:
     def __init__(self, msg_type, key, value=None, timestamp=None):

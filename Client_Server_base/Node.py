@@ -12,6 +12,8 @@ class Node:
         self.data = {}
         self.timestamps = {}
         self.start()
+        self.blocked = False
+
 
     def start(self):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -28,14 +30,30 @@ class Node:
 
     def handle_client(self, conn, addr):
         msg = self.receive_message(conn)
-        if msg.msg_type == MessageType.PUT_REQUEST:
+        
+        if msg.msg_type == MessageType.ANTIENTROPY:
+            self.blocked=True
+            self.send_message(conn, [self.data, self.timestamps])   #manda i dizionari
+            print("BLOCKED")
+            
+        elif msg.msg_type == MessageType.COMMIT:
+            ##TODO: commit
+            self.blocked=False
+            print("UNBLOCKED")
+            
+        elif msg.msg_type == MessageType.PUT_REQUEST:
+            if self.blocked:
+                self.send_nack(conn)
+                return
             self.put(msg.key, msg.value, msg.timestamp)
             print("Received PUT request:", msg.key, msg.value, msg.timestamp)
             self.send_ack(conn)
+            
         elif msg.msg_type == MessageType.GET_REQUEST:
             value, timestamp = self.get(msg.key)
             response = Message(MessageType.GET_REQUEST, msg.key, value, timestamp)
             self.send_message(conn, response)
+        
         conn.close()
 
     def put(self, key, value, timestamp):
@@ -50,9 +68,12 @@ class Node:
 
     def send_ack(self, conn):
         conn.sendall("ACK".encode('utf-8'))
+        
+    def send_nack(self, conn):
+        conn.sendall("NACK".encode('utf-8'))
 
     def send_message(self, conn, message):
-     # Serialize the message
+        # Serialize the message
         data = message.serialize()
         msg_len = len(data)
         header = msg_len.to_bytes(4, byteorder='big')
@@ -92,3 +113,4 @@ class Node:
         for key in self.data:
             value, timestamp = self.get(key)
             print("{:<10} {:<10} {:<20}".format(key, value, timestamp))
+            

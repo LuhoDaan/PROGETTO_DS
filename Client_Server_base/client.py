@@ -1,3 +1,4 @@
+import random
 import socket
 import time
 from Message import Message, MessageType
@@ -7,6 +8,8 @@ class Node:
     def __init__(self, host, port):
         self.host = host
         self.port = port
+        
+
 
 class Client:
     def __init__(self, nodes, read_quorum, write_quorum):
@@ -21,7 +24,8 @@ class Client:
     def put(self, key, value):
         timestamp = int(time.time() * 1000)
         ack_count = 0
-        for node in self.nodes:
+        #ra
+        for node in random.shuffle(self.nodes):
             try:
                 message = Message(MessageType.PUT_REQUEST, key, value, timestamp)
                 conn = self.connect_to_node(node)
@@ -29,12 +33,16 @@ class Client:
                 response = self.receive_ack(conn)
                 if response == "ACK":
                     ack_count += 1
+                if response == "NACK":
+                    print("NACK received try later")
+                    break
                 print(ack_count)
                 conn.close()
             except Exception as e:
                 print(f"Error connecting to node {node.host}:{node.port} - {e}")
-        if ack_count >= self.write_quorum:
-            print('Success!')
+            if ack_count >= self.write_quorum:
+                print('Success!')
+                break
 
     def get(self, key):
         responses = []

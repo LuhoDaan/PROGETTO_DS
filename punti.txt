@@ -25,4 +25,4 @@ How to manage failed writes!!:
 Dobbiamo parlare della conflict resolution nel caso di processi che fanno write write.
     nel caso ci dovessimo arrivare potremmo mettere che se i timestamp sono uguali prendiamo quello che ha qualce parametro e.g., ip, id, porta... più piccolo dell'altro
 
-delta timestamp, errore se troppo grande
+cambiare timestamp
