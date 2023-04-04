@@ -22,12 +22,12 @@ class Client:
         return conn
 
     def put(self, key, value):
-        timestamp = int(time.time() * 1000)
         ack_count = 0
         #ra
-        for node in random.shuffle(self.nodes):
+        random.shuffle(self.nodes)
+        for node in self.nodes:
             try:
-                message = Message(MessageType.PUT_REQUEST, key, value, timestamp)
+                message = Message(MessageType.PUT_REQUEST, key, value)
                 conn = self.connect_to_node(node)
                 self.send_message(conn, message)
                 response = self.receive_ack(conn)
@@ -45,31 +45,24 @@ class Client:
                 break
 
     def get(self, key):
-        responses = []
-        for node in self.nodes:
+        
+        random.shuffle(self.nodes)
+        r_quorum = self.nodes[:self.read_quorum]
+        for node in r_quorum:
             try:
                 message = Message(MessageType.GET_REQUEST, key)
                 conn = self.connect_to_node(node)
                 self.send_message(conn, message)
                 response = self.receive_message(conn)
-                if response.msg_type == MessageType.GET_REQUEST and response.key == key:
-                    responses.append(response)
+                #if response.msg_type == MessageType.GET_REQUEST and response.key == key:
+                    #responses.append(response)
                 conn.close()
             except Exception as e:
                 print(f"Error connecting to node {node.host}:{node.port} - {e}")
-            if len(responses) >= self.read_quorum:
-                latest_value = max(responses, key=lambda x: x.timestamp)
-                print(f'The value of {key}, is {latest_value.value}')
-                break
-
-        max_timestamp = 0
-        max_value = None
-        for response in responses:
-            if response.timestamp > max_timestamp:
-                max_timestamp = response.timestamp
-                max_value = response.value
-
-        return max_value
+        
+        print(f'The value of {key}, is {response}')
+                
+        return response
 
     def send_message(self, conn, message):
         """ Serialize the message"""
@@ -107,5 +100,5 @@ class Client:
 
     # Print the message
         message = Message.deserialize(self,data)
-        #print("Received message:", message.msg_type, message.key, message.value, message.timestamp)
+        
         return message

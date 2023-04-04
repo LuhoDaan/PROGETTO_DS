@@ -10,6 +10,7 @@ class Node:
         self.host = host
         self.port = port
         self.data = {}
+        self.globaldata = {}
         self.timestamps = {}
         self.start()
         self.blocked = False
@@ -38,6 +39,8 @@ class Node:
             
         elif msg.msg_type == MessageType.COMMIT:
             ##TODO: commit
+            self.globaldata = msg.key
+            self.data = msg.key
             self.blocked=False
             print("UNBLOCKED")
             
@@ -45,26 +48,30 @@ class Node:
             if self.blocked:
                 self.send_nack(conn)
                 return
-            self.put(msg.key, msg.value, msg.timestamp)
-            print("Received PUT request:", msg.key, msg.value, msg.timestamp)
+            self.put(msg.key, msg.value)
+            print("Received PUT request:", msg.key, msg.value)
             self.send_ack(conn)
             
         elif msg.msg_type == MessageType.GET_REQUEST:
-            value, timestamp = self.get(msg.key)
-            response = Message(MessageType.GET_REQUEST, msg.key, value, timestamp)
+            value = self.get(msg.key)
+            response = Message(MessageType.GET_REQUEST, msg.key, value)
             self.send_message(conn, response)
         
         conn.close()
 
-    def put(self, key, value, timestamp):
-        if key not in self.timestamps or timestamp > self.timestamps[key]:
-            self.data[key] = value
-            self.timestamps[key] = timestamp
+    def put(self, key, value):
+        if key not in self.timestamps:
 
+            self.timestamps[key] = 0
+        else:
+
+            self.timestamps[key] +=1 
+
+        self.data[key] = value
     def get(self, key):
-        if key not in self.data:
+        if key not in self.globaldata:
             return 'null', 0
-        return self.data.get(key, None), self.timestamps.get(key, 0)
+        return self.globaldata.get(key, None)
 
     def send_ack(self, conn):
         conn.sendall("ACK".encode('utf-8'))
@@ -104,7 +111,7 @@ class Node:
 
         # Print the message
         message = Message.deserialize(self,data)
-        print("Received message:", message.msg_type, message.key, message.value, message.timestamp)
+        print("Received message:", message.msg_type, message.key, message.value)
         return message
     
     def print_data(self):
