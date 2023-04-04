@@ -3,8 +3,8 @@ import socket
 
 def server_program():
     # get the hostname
-    host = socket.gethostbyname(socket.gethostname())
-    port = 50002  # initiate port no above 1024
+    host = "100.101.71.67"
+    port = 53000  # initiate port no above 1024
     
     print(host)
 

@@ -1,10 +1,11 @@
 import socket
 
-
 def client_program():
-    host = "192.168.22.34"  # as both code is running on same pc
-    port = 50002  # socket server port number
+    host = "100.124.89.11"  # as both code is running on same pc
+    port = 53000  # socket server port number
 
+    print(host)
+    
     client_socket = socket.socket()  # instantiate
     client_socket.connect((host, port))  # connect to the server
 

@@ -1,3 +1,4 @@
+import pickle
 import socket
 import threading
 import Message
@@ -61,13 +62,11 @@ class Node:
 
     def put(self, key, value):
         if key not in self.timestamps:
-
             self.timestamps[key] = 0
         else:
-
             self.timestamps[key] +=1 
-
         self.data[key] = value
+        
     def get(self, key):
         if key not in self.globaldata:
             return 'null', 0
@@ -81,7 +80,7 @@ class Node:
 
     def send_message(self, conn, message):
         # Serialize the message
-        data = message.serialize()
+        data = pickle.dumps(message)
         msg_len = len(data)
         header = msg_len.to_bytes(4, byteorder='big')
         conn.sendall(header + data)

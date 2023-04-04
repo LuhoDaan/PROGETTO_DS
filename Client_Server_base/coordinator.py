@@ -12,17 +12,21 @@ class coordinator:
         self.port = port
         self.nodes = nodes
         self.start()
+    
         
     def start(self):
         #set a timeout for calling a function commit every 5 seconds
-        self.timer = threading.Timer(5, self.commit())
+        
+        self.timer = threading.Timer(5, self.commit)
+        self.timer.start()
+        
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.bind((self.host, self.port))
         self.sock.listen(5)
     
     def commit(self):
         #1. bloccare il put in tutti i nodi
-        
+        print("Coordinator: initiating commit")
         data = []
         timestamps= []
         globaldata={}
@@ -49,8 +53,8 @@ class coordinator:
             conn.sendall(header + data)
             conn.close()
             
-
-        
+        self.timer = threading.Timer(5, self.commit())
+            
     def send_block(self, conn):
      # Serialize the message
         data = Message(MessageType.ANTIENTROPY, 0, 0).serialize()
@@ -63,6 +67,7 @@ class coordinator:
     # Receive the length
         header = conn.recv(4)
         if not header:
+            return 
             raise RuntimeError("ERROR")
 
         # Parse the header
