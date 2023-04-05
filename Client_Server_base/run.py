@@ -9,7 +9,7 @@ class NodeF:
 
 PORTE = 55000
 BUFFER_SIZE = 1024
-HOST = "100.101.71.67"
+HOST = "localhost"
 
 NUMBER_NODES= int(input('Hello User! \n How many Nodes would you like to have on your machine?\n'))
 nodes=[]
@@ -19,7 +19,7 @@ OLD_NODES= NUMBER_NODES
 NUMBER_NODES= int(input('Hello User! \n How many Nodes would you like to have on the other machine?\n'))
 #HOST = input('Insert the IP of the other machine please: \n')
 #PORTE = int(input("What's the starting available port?"))
-HOST = "100.124.89.11"
+HOST = "0"
 for i in range(NUMBER_NODES):
     NodeF(HOST,PORTE+i)
     nodes.append(NodeF(HOST,PORTE+i))
@@ -36,7 +36,7 @@ while not ((0<r_quorum<=TOTAL_NODES) and (0<w_quorum<=TOTAL_NODES)):
     w_quorum = int(input('What is the write quorum? ')) 
 client = Client(nodes,r_quorum,w_quorum)
 
-coordinator = coordinator("100.101.71.67",PORTE-1,nodes)
+coordinator = coordinator("localhost",PORTE-1,nodes)
 
 while True:
     command = input("Enter a command (PUT, GET, or STOP): ").upper()
@@ -50,7 +50,8 @@ while True:
 
     elif command == "GET":
         key = input("Enter a key: ")
-        #funzione del client
+        #funzione del client3
+        
         value = client.get(key)
         if value != "null":
             print(f"The value for key '{key}' is '{value}'.")
@@ -62,6 +63,7 @@ while True:
         break
 
     elif command == "PRINT":
+        print(nodes)
         for node in nodes[:OLD_NODES]:
             if node.host!=HOST:
                 print(f"Node {node.host}:{node.port}")
@@ -69,4 +71,4 @@ while True:
 
     else:
         print("Invalid command. Please enter PUT, GET, or STOP.")
-    
+

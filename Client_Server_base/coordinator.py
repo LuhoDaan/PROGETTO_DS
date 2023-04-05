@@ -2,6 +2,8 @@ import socket
 import threading
 from Message import Message, MessageType
 from global_commit import global_commit
+import time
+from timer import RepeatTimer
 
 BUFFER_SIZE = 1024
 
@@ -11,19 +13,27 @@ class coordinator:
         self.host = host
         self.port = port
         self.nodes = nodes
+        #self.timer = threading.Timer(15, self.commit)
         self.start()
     
         
     def start(self):
         #set a timeout for calling a function commit every 5 seconds
-        
-        self.timer = threading.Timer(5, self.commit)
-        self.timer.start()
-        
+ 
+        #self.timer.start()
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.bind((self.host, self.port))
         self.sock.listen(5)
-    
+        timer = RepeatTimer(10,self.commit)  
+        timer.start() #recalling run  
+        print('Threading started')  
+        #time.sleep(10)#It gets suspended for the given number of seconds  
+        #print('Threading finishing')  
+        #timer.cancel()
+
+    def printing(self):
+        print('bella')
+
     def commit(self):
         #1. bloccare il put in tutti i nodi
         print("Coordinator: initiating commit")
@@ -31,12 +41,15 @@ class coordinator:
         timestamps= []
         globaldata={}
         
+        
         for node in self.nodes:
+            
             conn = self.connect_to_node(node)
             self.send_block(conn)
             #2. farsi inviare i dati da tutti i nodi
-            data.append(self.receive_message(conn)[0])
-            timestamps.append(self.receive_message(conn)[1])
+            mylist = self.receive_message(conn)
+            data.append(mylist[0])
+            timestamps.append(mylist[1])
             conn.close()
         print("Blocked all nodes")
         
@@ -53,8 +66,8 @@ class coordinator:
             conn.sendall(header + data)
             conn.close()
             
-        self.timer = threading.Timer(5, self.commit())
-            
+
+
     def send_block(self, conn):
      # Serialize the message
         data = Message(MessageType.ANTIENTROPY, 0, 0).serialize()
