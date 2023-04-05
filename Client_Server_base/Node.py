@@ -117,6 +117,7 @@ class Node:
         print("Data:")
         print("{:<10} {:<10} {:<20}".format("Key", "Value", "Timestamp"))
         for key in self.data:
-            value, timestamp = self.get(key)
+            value = self.data.get(key)
+            timestamp = self.timestamps.get(key)
             print("{:<10} {:<10} {:<20}".format(key, value, timestamp))
             
