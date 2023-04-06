@@ -100,5 +100,4 @@ class Client:
 
     # Print the message
         message = Message.deserialize(self,data)
-        
         return message
