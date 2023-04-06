@@ -24,12 +24,11 @@ class Coordinator:
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.bind((self.host, self.port))
         self.sock.listen(5)
-        timer = RepeatTimer(20,self.commit)  
+        timer = RepeatTimer(10,self.commit)  
         timer.start()
         print('Threading started')
 
     def commit(self):
-        
         data = []
         timestamps= []
         globaldata={}
@@ -42,7 +41,7 @@ class Coordinator:
             self.send_block(conn)
             
             #2. farsi inviare i dati da tutti i nodi
-
+            
             mylist = self.receive_message(conn)
             data.append(mylist[0])
             timestamps.append(mylist[1])
@@ -63,7 +62,6 @@ class Coordinator:
             conn.close()
         
         print("Correctly committed all nodes")
-        print(self.globaldata)
             
     def send_block(self, conn):
         
@@ -101,3 +99,5 @@ class Coordinator:
     def connect_to_node(self, node):
         conn = socket.create_connection((node.host, node.port), timeout=10)
         return conn
+
+

@@ -6,11 +6,9 @@ class MessageType(Enum):
     GET_REQUEST = 2
     ANTIENTROPY = 3
     COMMIT = 4
-    STOP = 5
-    PRINT = 6
 
 class Message:
-    def __init__(self, msg_type, key=None, value=None):
+    def __init__(self, msg_type, key, value=None):
         self.msg_type = msg_type
         self.key = key
         self.value = value

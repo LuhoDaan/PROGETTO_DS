@@ -7,6 +7,7 @@ def global_commit(list1, list2):
         
         for d in lst:
             if key in d:
+                print(d)
                 if d[key] in value_counts:
                     value_counts[d[key]] += 1
                 else:

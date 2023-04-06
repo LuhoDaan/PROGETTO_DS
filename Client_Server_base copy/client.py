@@ -1,8 +1,14 @@
 import random
 import socket
+import time
 from Message import Message, MessageType
 
 BUFFER_SIZE = 1024
+
+class Node:
+    def __init__(self, host, port):
+        self.host = host
+        self.port = port
         
 class Client:
     def __init__(self, nodes, read_quorum, write_quorum):
@@ -40,7 +46,6 @@ class Client:
                 break
 
     def get(self, key):
-        
         random.shuffle(self.nodes)
         
         r_quorum = self.nodes[:self.read_quorum]
@@ -49,33 +54,14 @@ class Client:
                 message = Message(MessageType.GET_REQUEST, key)
                 conn = self.connect_to_node(node)
                 self.send_message(conn, message)
-                response = self.receive_message(conn).value
+                response = self.receive_message(conn)
                 conn.close()
             except Exception as e:
-                print(f"Error connecting to node {node.host}:{node.port} - {e}")                
+                print(f"Error connecting to node {node.host}:{node.port} - {e}")
+        
+        print(f'The value of {key}, is {response}')
+                
         return response
-
-
-    def print(self):        
-        for node in self.nodes:
-            try:
-                message = Message(MessageType.PRINT)
-                conn = self.connect_to_node(node)
-                self.send_message(conn, message)
-                conn.close()
-            except Exception as e:
-                print(f"Error connecting to node {node.host}:{node.port} - {e}")                
-
-    def stop(self):        
-        for node in self.nodes:
-            try:
-                message = Message(MessageType.STOP)
-                conn = self.connect_to_node(node)
-                self.send_message(conn, message)
-                conn.close()
-            except Exception as e:
-                print(f"Error connecting to node {node.host}:{node.port} - {e}")                
-
 
     def send_message(self, conn, message):
         data = message.serialize()

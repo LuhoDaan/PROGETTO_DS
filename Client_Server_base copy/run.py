@@ -34,15 +34,9 @@ w_quorum = 0
 while not ((0<r_quorum<=TOTAL_NODES) and (0<w_quorum<=TOTAL_NODES)):
     r_quorum = int(input('What is the read quorum? ')) 
     w_quorum = int(input('What is the write quorum? ')) 
-    
-coordinator = Coordinator("localhost",PORTE-1,nodes)
-
-####################  -> file che abbia tutti i nodi e che venga letto da i client
-
-
-    
 client = Client(nodes,r_quorum,w_quorum)
 
+coordinator = Coordinator("localhost",PORTE-1,nodes)
 
 while True:
     command = input("Enter a command (PUT, GET, or STOP): ").upper()
