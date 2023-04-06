@@ -1,6 +1,6 @@
 from Node import Node
 from client import Client
-from coordinator import coordinator
+from Coordinator import Coordinator
 
 class NodeF:
     def __init__(self, host, port):
@@ -36,7 +36,7 @@ while not ((0<r_quorum<=TOTAL_NODES) and (0<w_quorum<=TOTAL_NODES)):
     w_quorum = int(input('What is the write quorum? ')) 
 client = Client(nodes,r_quorum,w_quorum)
 
-coordinator = coordinator("localhost",PORTE-1,nodes)
+coordinator = Coordinator("localhost",PORTE-1,nodes)
 
 while True:
     command = input("Enter a command (PUT, GET, or STOP): ").upper()

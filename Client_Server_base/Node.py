@@ -36,21 +36,18 @@ class Node:
         if msg.msg_type == MessageType.ANTIENTROPY:
             self.blocked=True
             self.send_message(conn, [self.data, self.timestamps])   #manda i dizionari
-            print("BLOCKED")
             
         elif msg.msg_type == MessageType.COMMIT:
             ##TODO: commit
             self.globaldata = msg.key
             self.data = msg.key
             self.blocked=False
-            print("UNBLOCKED")
             
         elif msg.msg_type == MessageType.PUT_REQUEST:
             if self.blocked:
                 self.send_nack(conn)
                 return
             self.put(msg.key, msg.value)
-            print("Received PUT request:", msg.key, msg.value)
             self.send_ack(conn)
             
         elif msg.msg_type == MessageType.GET_REQUEST:
@@ -108,9 +105,7 @@ class Node:
 
         data = b"".join(chunks)
 
-        # Print the message
         message = Message.deserialize(self,data)
-        print("Received message:", message.msg_type, message.key, message.value)
         return message
     
     def print_data(self):

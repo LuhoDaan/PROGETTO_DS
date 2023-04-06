@@ -4,13 +4,12 @@ import time
 from Message import Message, MessageType
 
 BUFFER_SIZE = 1024
+
 class Node:
     def __init__(self, host, port):
         self.host = host
         self.port = port
         
-
-
 class Client:
     def __init__(self, nodes, read_quorum, write_quorum):
         self.nodes = nodes
@@ -22,9 +21,11 @@ class Client:
         return conn
 
     def put(self, key, value):
+        
         ack_count = 0
-        #ra
+        
         random.shuffle(self.nodes)
+        
         for node in self.nodes:
             try:
                 message = Message(MessageType.PUT_REQUEST, key, value)
@@ -34,7 +35,7 @@ class Client:
                 if response == "ACK":
                     ack_count += 1
                 if response == "NACK":
-                    print("NACK received try later")
+                    print("Nodes are not ready to receive any updates, try later")
                     break
                 print(ack_count)
                 conn.close()
@@ -45,8 +46,8 @@ class Client:
                 break
 
     def get(self, key):
-        
         random.shuffle(self.nodes)
+        
         r_quorum = self.nodes[:self.read_quorum]
         for node in r_quorum:
             try:
@@ -54,8 +55,6 @@ class Client:
                 conn = self.connect_to_node(node)
                 self.send_message(conn, message)
                 response = self.receive_message(conn)
-                #if response.msg_type == MessageType.GET_REQUEST and response.key == key:
-                    #responses.append(response)
                 conn.close()
             except Exception as e:
                 print(f"Error connecting to node {node.host}:{node.port} - {e}")
@@ -65,19 +64,18 @@ class Client:
         return response
 
     def send_message(self, conn, message):
-        """ Serialize the message"""
         data = message.serialize()
         msg_len = len(data)
         header = msg_len.to_bytes(4, byteorder='big')
         conn.sendall(header + data)
 
     def receive_ack(self, conn):
-        """returns the ack"""
+        #returns the ACK or NACK
         return conn.recv(4).decode("utf-8")
 
     def receive_message(self, conn):
     
-    # Receive the length
+        # Receive the length
         header = conn.recv(4)
         if not header:
             raise RuntimeError("ERROR")
@@ -98,6 +96,6 @@ class Client:
 
         data = b"".join(chunks)
 
-    # Print the message
+        # Print the message
         message = Message.deserialize(self,data)
         return message
