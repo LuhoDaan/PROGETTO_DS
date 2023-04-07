@@ -1,9 +1,7 @@
-#codice interattivo per un client
-
 from client import Client
+import json
 
 #import from a json file called nodes the nodes
-import json
 with open('nodes.json') as json_file:
     data = json.load(json_file)
     print(data)

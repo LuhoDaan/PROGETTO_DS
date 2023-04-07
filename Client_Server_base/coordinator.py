@@ -63,7 +63,7 @@ class Coordinator:
             conn.close()
         
         print("Correctly committed all nodes")
-        print(self.globaldata)
+        print(globaldata)
             
     def send_block(self, conn):
         
