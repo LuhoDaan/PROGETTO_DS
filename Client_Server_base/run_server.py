@@ -1,6 +1,5 @@
 #codice per fare partire i nodi e il coordinatore
 from Node import Node
-from client import Client
 from Coordinator import Coordinator
 
 class NodeF:
@@ -9,7 +8,6 @@ class NodeF:
         self.port = port
 
 PORTE = 55000
-BUFFER_SIZE = 1024
 HOST = "localhost"
 
 NUMBER_NODES= int(input('Hello User! \n How many Nodes would you like to have on your machine?\n'))
@@ -25,7 +23,6 @@ for i in range(NUMBER_NODES):
     NodeF(HOST,PORTE+i)
     nodes.append(NodeF(HOST,PORTE+i))
 
-
 TOTAL_NODES = NUMBER_NODES+OLD_NODES
 
 #PARTE CLIENT
@@ -35,8 +32,6 @@ w_quorum = 0
 while not ((0<r_quorum<=TOTAL_NODES) and (0<w_quorum<=TOTAL_NODES)):
     r_quorum = int(input('What is the read quorum? '))
     w_quorum = int(input('What is the write quorum? '))
-
-coordinator = Coordinator("localhost",PORTE-1,nodes)
 
 list_of_nodes = [(r_quorum,w_quorum)]
 
