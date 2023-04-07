@@ -1,6 +1,5 @@
 #codice per fare partire i nodi e il coordinatore
 from Node import Node
-from Coordinator import Coordinator
 
 class NodeF:
     def __init__(self, host, port):
@@ -8,7 +7,7 @@ class NodeF:
         self.port = port
 
 PORTE = 55000
-HOST = "localhost"
+HOST = "100.101.71.67"
 
 NUMBER_NODES= int(input('Hello User! \n How many Nodes would you like to have on your machine?\n'))
 nodes=[]
@@ -16,9 +15,8 @@ for i in range(NUMBER_NODES):
     nodes.append(Node(HOST,PORTE+i))
 OLD_NODES= NUMBER_NODES
 NUMBER_NODES= int(input('Hello User! \n How many Nodes would you like to have on the other machine?\n'))
-#HOST = input('Insert the IP of the other machine please: \n')
+HOST = input('Insert the IP of the other machine please: \n')
 #PORTE = int(input("What's the starting available port?"))
-HOST = "0"
 for i in range(NUMBER_NODES):
     NodeF(HOST,PORTE+i)
     nodes.append(NodeF(HOST,PORTE+i))

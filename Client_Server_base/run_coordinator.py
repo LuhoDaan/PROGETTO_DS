@@ -2,7 +2,7 @@ from Coordinator import Coordinator
 import json
 
 PORTE = 55000
-HOST = "localhost"
+HOST = "100.101.71.67"
 
 with open('nodes.json') as json_file:
     data = json.load(json_file)
