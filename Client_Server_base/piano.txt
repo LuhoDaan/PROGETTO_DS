@@ -1,0 +1,13 @@
+PUT
+##questo funziona per richiesta
+1. Client manda a w_quorum la richiesta
+2. Sceglie un coordinatore? (Randomizziamo la lista del quorum, prendiamo il primo)
+3. Client manda a w valore e id coord
+4. Coord si mette in ascolto
+5. W manda i timestamp chiave al coord
+6. Coord prende il più grande 
+7. Coord manda a w quello scelto.
+
+GET
+1. Client contatta r
+2. Client sceglie il valore con timestamp più alto
