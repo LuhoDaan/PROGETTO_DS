@@ -15,7 +15,6 @@ class Client:
         return conn
 
     def put(self, key, value):
-        
         random.shuffle(self.nodes)
         timestamp = 0
         print("Sending PUT_REQUEST to nodes: ")
@@ -48,17 +47,22 @@ class Client:
             except Exception as e:
                 print(f"Error connecting to node {node.host}:{node.port} - {e}")
         print("commit successfull")
+
+
     def get(self, key):
         
         random.shuffle(self.nodes)
-        
+        timestamp = 0
         r_quorum = self.nodes[:self.read_quorum]
         for node in r_quorum:
             try:
                 message = Message(MessageType.GET_REQUEST, key)
                 conn = self.connect_to_node(node)
                 self.send_message(conn, message)
-                response = self.receive_message(conn).value
+                msg=self.receive_message(conn)
+                if (msg.timestamp > timestamp):
+                    timestamp = msg.timestamp
+                    response = msg.value
                 conn.close()
             except Exception as e:
                 print(f"Error connecting to node {node.host}:{node.port} - {e}")                
