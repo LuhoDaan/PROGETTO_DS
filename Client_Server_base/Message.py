@@ -4,7 +4,7 @@ import pickle
 class MessageType(Enum):
     PUT_REQUEST = 1
     GET_REQUEST = 2
-    ANTIENTROPY = 3
+    UPDATE = 3
     COMMIT = 4
     STOP = 5
     PRINT = 6
@@ -17,7 +17,6 @@ class Message:
         self.value = value
         self.timestamp = timestamp
 
-    
     def serialize(self):
         return pickle.dumps(self)
     

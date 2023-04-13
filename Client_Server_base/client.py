@@ -32,9 +32,7 @@ class Client:
                 conn.close()
             except Exception as e:
                 print(f"Error connecting to node {node.host}:{node.port} - {e}")
-        
-        print("Sending COMMIT to nodes: timestap = ", timestamp)
-                
+                        
         for node in self.nodes[:self.write_quorum]:
             try:
                 if timestamp == 0:
@@ -46,13 +44,16 @@ class Client:
                 conn.close()
             except Exception as e:
                 print(f"Error connecting to node {node.host}:{node.port} - {e}")
-        print("commit successfull")
+        if timestamp == 0:
+            print("commit aborted")
+        else:
+            print("commit successfull")
 
 
     def get(self, key):
-        
         random.shuffle(self.nodes)
         timestamp = 0
+        expired_value=[]
         r_quorum = self.nodes[:self.read_quorum]
         for node in r_quorum:
             try:
@@ -60,13 +61,26 @@ class Client:
                 conn = self.connect_to_node(node)
                 self.send_message(conn, message)
                 msg=self.receive_message(conn)
+                expired_value.append(node, msg.timestamp)
                 print(msg.timestamp, msg.value)
                 if (msg.timestamp > timestamp):
                     timestamp = msg.timestamp
                     response = msg.value
                 conn.close()
             except Exception as e:
-                print(f"Error connecting to node {node.host}:{node.port} - {e}")                
+                print(f"Error connecting to node {node.host}:{node.port} - {e}")
+                
+        expired_value=[x[0] for x in expired_value if x[1] < timestamp]
+        
+        for node in expired_value:
+            try:
+                message = Message(MessageType.UPDATE, key, response, timestamp)
+                conn = self.connect_to_node(node)
+                self.send_message(conn, message)
+                conn.close()
+            except Exception as e:
+                print(f"Error connecting to node {node.host}:{node.port} - {e}")
+             
         return response
 
 
@@ -97,9 +111,9 @@ class Client:
         header = msg_len.to_bytes(4, byteorder='big')
         conn.sendall(header + data)
 
-    def receive_ack(self, conn):
-        #returns the ACK or NACK
-        return conn.recv(4).decode("utf-8")
+    # def receive_ack(self, conn):
+    #     #returns the ACK or NACK
+    #     return conn.recv(4).decode("utf-8")
     
     def receive_timestamp(self, conn):
         return int.from_bytes(conn.recv(4), byteorder='big')

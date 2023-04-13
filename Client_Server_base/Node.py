@@ -10,7 +10,7 @@ class Node:
         self.host = host
         self.port = port
         self.data = {}
-        self.globaldata = {}
+        #self.globaldata = {}
         self.timestamps = {}
         self.start()
         self.blocked = False
@@ -30,11 +30,11 @@ class Node:
         
         msg = self.receive_message(conn)
         
-        if msg.msg_type == MessageType.ANTIENTROPY:
-            self.blocked=True
-            self.send_message(conn, [self.data, self.timestamps])   #manda i dizionari
+        # if msg.msg_type == MessageType.ANTIENTROPY:
+        #     self.blocked=True
+        #     self.send_message(conn, [self.data, self.timestamps])   #manda i dizionari
             
-        elif msg.msg_type == MessageType.COMMIT:
+        if msg.msg_type == MessageType.COMMIT:
             self.data[msg.key] = msg.value
             self.timestamps[msg.key] = msg.timestamp
             self.blocked = False
@@ -54,6 +54,10 @@ class Node:
             response = Message(MessageType.GET_REQUEST, value=value, timestamp=timestamp)
             self.send_message(conn, response)
             
+        elif msg.msg_type == MessageType.UPDATE:
+            self.data[msg.key] = msg.value
+            self.timestamps[msg.key] = msg.timestamp
+            
         elif msg.msg_type == MessageType.PRINT:
             self.print_data()
             
@@ -64,23 +68,23 @@ class Node:
           
         conn.close()
 
-    def put(self, key, value):
-        if key not in self.timestamps:
-            self.timestamps[key] = 0
-        else:
-            self.timestamps[key] +=1 
-        self.data[key] = value
+    # def put(self, key, value):
+    #     if key not in self.timestamps:
+    #         self.timestamps[key] = 0
+    #     else:
+    #         self.timestamps[key] +=1 
+    #     self.data[key] = value
         
     def get(self, key):
-        if key not in self.globaldata:
+        if key not in self.data:
             return 'null', 0
-        return self.globaldata[key], self.timestamps[key]
+        return self.data[key], self.timestamps[key]
 
-    def send_ack(self, conn):
-        conn.sendall("ACK".encode('utf-8'))
+    # def send_ack(self, conn):
+    #     conn.sendall("ACK".encode('utf-8'))
         
-    def send_nack(self, conn):
-        conn.sendall("NACK".encode('utf-8'))
+    # def send_nack(self, conn):
+    #     conn.sendall("NACK".encode('utf-8'))
         
     def send_timestamp(self, conn, key):
         if key not in self.timestamps:
@@ -96,7 +100,6 @@ class Node:
         conn.sendall(header + data)
 
     def receive_message(self, conn):
-        
         # Receive the length
         header = conn.recv(4)
         if not header:

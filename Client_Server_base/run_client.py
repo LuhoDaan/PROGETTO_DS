@@ -45,7 +45,6 @@ while True:
         client.stop()
         break
 
-    #TODO: print the nodes
     elif command == "PRINT":
         client.print()
 
