@@ -18,6 +18,7 @@ class Client:
         
         random.shuffle(self.nodes)
         timestamp = 0
+        print("Sending PUT_REQUEST to nodes: ")
         for node in self.nodes[:self.write_quorum]:
             try:
                 message = Message(MessageType.PUT_REQUEST, key, value)
@@ -32,7 +33,8 @@ class Client:
                 conn.close()
             except Exception as e:
                 print(f"Error connecting to node {node.host}:{node.port} - {e}")
-                
+        
+        print("Sending COMMIT to nodes: timestap = ", timestamp)
                 
         for node in self.nodes[:self.write_quorum]:
             try:
@@ -45,7 +47,7 @@ class Client:
                 conn.close()
             except Exception as e:
                 print(f"Error connecting to node {node.host}:{node.port} - {e}")
-
+        print("commit successfull")
     def get(self, key):
         
         random.shuffle(self.nodes)

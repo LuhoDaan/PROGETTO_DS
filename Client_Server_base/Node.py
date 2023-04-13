@@ -36,7 +36,7 @@ class Node:
             
         elif msg.msg_type == MessageType.COMMIT:
             self.data[msg.key] = msg.value
-            self.data[msg.key] = msg.timestamp
+            self.timestamps[msg.key] = msg.timestamp
             self.blocked = False
         
         elif msg.msg_type == MessageType.PUT_REQUEST:
