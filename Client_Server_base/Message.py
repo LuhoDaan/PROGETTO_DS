@@ -8,13 +8,15 @@ class MessageType(Enum):
     COMMIT = 4
     STOP = 5
     PRINT = 6
+    ABORT = 7
 
 class Message:
-    def __init__(self, msg_type, key=None, value=None):
+    def __init__(self, msg_type, key=None, value=None, timestamp=None):
         self.msg_type = msg_type
         self.key = key
         self.value = value
-        
+        self.timestamp = timestamp
+
     
     def serialize(self):
         return pickle.dumps(self)

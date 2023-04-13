@@ -35,18 +35,19 @@ class Node:
             self.send_message(conn, [self.data, self.timestamps])   #manda i dizionari
             
         elif msg.msg_type == MessageType.COMMIT:
-            self.globaldata = msg.key
-            self.data = msg.key
-            self.timestamps = msg.key
-            self.timestamps = dict.fromkeys(self.timestamps, 0)
+            self.data[msg.key] = msg.value
+            self.data[msg.key] = msg.timestamp
             self.blocked = False
-            
+        
         elif msg.msg_type == MessageType.PUT_REQUEST:
             if self.blocked:
-                self.send_nack(conn)
-                return
-            self.put(msg.key, msg.value)
-            self.send_ack(conn)
+                self.send_timestamp(conn, 0)
+            else:
+                self.blocked = True
+                self.send_timestamp(conn, msg.key)
+            
+        elif msg.msg_type == MessageType.ABORT:
+            self.blocked = False
             
         elif msg.msg_type == MessageType.GET_REQUEST:
             value = self.get(msg.key)
@@ -60,7 +61,7 @@ class Node:
             print(f"Stopping node: {self.host} : {self.port}")
             self.sock.close()
             return
-        
+          
         conn.close()
 
     def put(self, key, value):
@@ -80,6 +81,12 @@ class Node:
         
     def send_nack(self, conn):
         conn.sendall("NACK".encode('utf-8'))
+        
+    def send_timestamp(self, conn, key):
+        if key not in self.timestamps:
+            conn.sendall((1).to_bytes(4, byteorder='big'))
+        else:
+            conn.sendall((self.timestamps[key]+1).to_bytes(4, byteorder='big'))
 
     def send_message(self, conn, message):
         # Serialize the message

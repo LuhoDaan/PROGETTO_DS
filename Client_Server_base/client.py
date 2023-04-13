@@ -16,28 +16,35 @@ class Client:
 
     def put(self, key, value):
         
-        ack_count = 0
-        
         random.shuffle(self.nodes)
-        
-        for node in self.nodes:
+        timestamp = 0
+        for node in self.nodes[:self.write_quorum]:
             try:
                 message = Message(MessageType.PUT_REQUEST, key, value)
                 conn = self.connect_to_node(node)
                 self.send_message(conn, message)
-                response = self.receive_ack(conn)
-                if response == "ACK":
-                    ack_count += 1
-                if response == "NACK":
-                    print("Nodes are not ready to receive any updates, try later")
+                response = self.receive_timestamp(conn)
+                if response == 0:
+                    timestamp=0
                     break
-                print(ack_count)
+                if response > timestamp:
+                    timestamp = response
                 conn.close()
             except Exception as e:
                 print(f"Error connecting to node {node.host}:{node.port} - {e}")
-            if ack_count >= self.write_quorum:
-                print('Success!')
-                break
+                
+                
+        for node in self.nodes[:self.write_quorum]:
+            try:
+                if timestamp == 0:
+                    message = Message(MessageType.ABORT)
+                else:
+                    message = Message(MessageType.COMMIT, key, value, timestamp)
+                conn = self.connect_to_node(node)
+                self.send_message(conn, message)
+                conn.close()
+            except Exception as e:
+                print(f"Error connecting to node {node.host}:{node.port} - {e}")
 
     def get(self, key):
         
@@ -86,6 +93,9 @@ class Client:
     def receive_ack(self, conn):
         #returns the ACK or NACK
         return conn.recv(4).decode("utf-8")
+    
+    def receive_timestamp(self, conn):
+        return int.from_bytes(conn.recv(4), byteorder='big')
 
     def receive_message(self, conn):
     

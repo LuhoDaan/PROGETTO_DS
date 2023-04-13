@@ -34,7 +34,6 @@ while True:
     elif command == "GET":
         key = input("Enter a key: ")
         #funzione del client
-        
         value = client.get(key)
         if value[0] != "null":
             print(f"The value for key '{key}' is '{value}'.")
