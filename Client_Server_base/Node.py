@@ -51,7 +51,7 @@ class Node:
             
         elif msg.msg_type == MessageType.GET_REQUEST:
             value, timestamp= self.get(msg.key)
-            response = Message(MessageType.GET_REQUEST, value, timestamp)
+            response = Message(MessageType.GET_REQUEST, value=value, timestamp=timestamp)
             self.send_message(conn, response)
             
         elif msg.msg_type == MessageType.PRINT:
@@ -74,7 +74,7 @@ class Node:
     def get(self, key):
         if key not in self.globaldata:
             return 'null', 0
-        return self.globaldata.get(key, None), self.timestamps.get(key, None)
+        return self.globaldata[key], self.timestamps[key]
 
     def send_ack(self, conn):
         conn.sendall("ACK".encode('utf-8'))

@@ -60,6 +60,7 @@ class Client:
                 conn = self.connect_to_node(node)
                 self.send_message(conn, message)
                 msg=self.receive_message(conn)
+                print(msg.timestamp, msg.value)
                 if (msg.timestamp > timestamp):
                     timestamp = msg.timestamp
                     response = msg.value
