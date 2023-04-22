@@ -17,7 +17,11 @@ class Node:
 
     def start(self):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.sock.bind((self.host, self.port))
+        try:
+            self.sock.bind((self.host, self.port))
+        except:
+            print(f"The port number {self.port} is already in use, please choose another one")
+            return
         self.sock.listen(5)
         threading.Thread(target=self.accept_connections).start()
 
