@@ -16,7 +16,6 @@ nodes = []
 r_quorum, w_quorum = data[0]
 
 for node in data[1:]:
-    #print(node)
     nodes.append(NodeF(node[0],node[1]))
 
 client = Client(nodes,r_quorum,w_quorum)
@@ -28,8 +27,10 @@ while True:
         key = input("Enter a key: ")
         value = input("Enter a value: ")
         #funzione del client
-        client.put(key,value)
-        print(f"Added key '{key}' with value '{value}' to data.")
+        if client.put(key,value):
+            print(f"Added key '{key}' with value '{value}' to data.")
+        else:
+            print("Could not put data, try again.")
 
     elif command == "GET":
         key = input("Enter a key: ")

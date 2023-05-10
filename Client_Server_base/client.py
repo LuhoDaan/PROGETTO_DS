@@ -46,6 +46,7 @@ class Client:
                     conn.close()
                 except Exception as e:
                     print(f"Error connecting to node {node.host}:{node.port} - {e}")
+            return False
                     
         else:
             for node in self.nodes[:self.write_quorum]:
@@ -56,10 +57,7 @@ class Client:
                     conn.close()
                 except Exception as e:
                     print(f"Error connecting to node {node.host}:{node.port} - {e}")
-        if timestamp == 0:
-            print("commit aborted")
-        else:
-            print("commit successfull")
+        return True
 
 
     def get(self, key):

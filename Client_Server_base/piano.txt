@@ -11,3 +11,5 @@ PUT
 GET
 1. Client contatta r
 2. Client sceglie il valore con timestamp più alto
+
+Nel caso di abort printa riprovare
