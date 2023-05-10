@@ -15,6 +15,7 @@ class Client:
         return conn
 
     def put(self, key, value):
+        blocked_nodes = []
         random.shuffle(self.nodes)
         timestamp = 0
         print("Sending PUT_REQUEST to nodes: ")
@@ -23,27 +24,38 @@ class Client:
                 message = Message(MessageType.PUT_REQUEST, key, value)
                 conn = self.connect_to_node(node)
                 self.send_message(conn, message)
-                response = self.receive_timestamp(conn)
-                if response == 0:
+                response = self.receive_timestamp(conn) #ricevo il timestamp dal nodo che lo ha inviato
+                if response == 0:      #se uno dei nodi risponde 0 (è già bloccato), abort
                     timestamp=0
                     break
+                blocked_nodes.append(node)
                 if response > timestamp:
-                    timestamp = response
+                    timestamp = response                #aggiorno il timestamp
                 conn.close()
             except Exception as e:
                 print(f"Error connecting to node {node.host}:{node.port} - {e}")
-                        
-        for node in self.nodes[:self.write_quorum]:
-            try:
-                if timestamp == 0:
+        
+        
+        if timestamp == 0:
+            print("put aborted")
+            for node in blocked_nodes:
+                try:
                     message = Message(MessageType.ABORT)
-                else:
+                    conn = self.connect_to_node(node)
+                    self.send_message(conn, message)
+                    conn.close()
+                except Exception as e:
+                    print(f"Error connecting to node {node.host}:{node.port} - {e}")
+                    
+        else:
+            for node in self.nodes[:self.write_quorum]:
+                try:
                     message = Message(MessageType.COMMIT, key, value, timestamp)
-                conn = self.connect_to_node(node)
-                self.send_message(conn, message)
-                conn.close()
-            except Exception as e:
-                print(f"Error connecting to node {node.host}:{node.port} - {e}")
+                    conn = self.connect_to_node(node)
+                    self.send_message(conn, message)
+                    conn.close()
+                except Exception as e:
+                    print(f"Error connecting to node {node.host}:{node.port} - {e}")
         if timestamp == 0:
             print("commit aborted")
         else:
@@ -74,7 +86,7 @@ class Client:
         
         for node in expired_value:
             try:
-                message = Message(MessageType.UPDATE, key, response, timestamp)
+                message = Message(MessageType.UPDATE, key=key, value=response, timestamp=timestamp)
                 conn = self.connect_to_node(node)
                 self.send_message(conn, message)
                 conn.close()

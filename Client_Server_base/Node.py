@@ -38,21 +38,22 @@ class Node:
         #     self.blocked=True
         #     self.send_message(conn, [self.data, self.timestamps])   #manda i dizionari
             
-        if msg.msg_type == MessageType.COMMIT:
-            self.data[msg.key] = msg.value
-            self.timestamps[msg.key] = msg.timestamp
-            self.blocked = False
-        
-        elif msg.msg_type == MessageType.PUT_REQUEST:
+        if msg.msg_type == MessageType.PUT_REQUEST:
             if self.blocked:
                 self.send_timestamp(conn, 0)
             else:
                 self.blocked = True
                 self.send_timestamp(conn, msg.key)
-            
+                
+        elif msg.msg_type == MessageType.COMMIT:
+            self.data[msg.key] = msg.value
+            self.timestamps[msg.key] = msg.timestamp
+            self.blocked = False
+        
         elif msg.msg_type == MessageType.ABORT:
             self.blocked = False
-            
+
+
         elif msg.msg_type == MessageType.GET_REQUEST:
             value, timestamp= self.get(msg.key)
             response = Message(MessageType.GET_REQUEST, value=value, timestamp=timestamp)
@@ -61,9 +62,11 @@ class Node:
         elif msg.msg_type == MessageType.UPDATE:
             self.data[msg.key] = msg.value
             self.timestamps[msg.key] = msg.timestamp
-            
+
+
         elif msg.msg_type == MessageType.PRINT:
             self.print_data()
+            
             
         elif msg.msg_type == MessageType.STOP:
             print(f"Stopping node: {self.host} : {self.port}")
