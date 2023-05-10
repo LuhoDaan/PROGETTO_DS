@@ -35,7 +35,7 @@ while True:
         key = input("Enter a key: ")
         #funzione del client
         value = client.get(key)
-        if value[0] != "null":
+        if value != "null":
             print(f"The value for key '{key}' is '{value}'.")
         else:
             print(f"No value found for key '{key}'.")

@@ -16,7 +16,7 @@ for i in range(NUMBER_NODES):
 OLD_NODES= NUMBER_NODES
 NUMBER_NODES= int(input('Hello User! \n How many Nodes would you like to have on the other machine?\n'))
 HOST = input('Insert the IP of the other machine please: \n')
-#PORTE = int(input("What's the starting available port?"))
+
 for i in range(NUMBER_NODES):
     NodeF(HOST,PORTE+i)
     nodes.append(NodeF(HOST,PORTE+i))

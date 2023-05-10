@@ -67,6 +67,7 @@ class Client:
         timestamp = 0
         expired_value=[]
         r_quorum = self.nodes[:self.read_quorum]
+        response = "null"
         for node in r_quorum:
             try:
                 message = Message(MessageType.GET_REQUEST, key)
