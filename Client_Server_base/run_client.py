@@ -4,7 +4,7 @@ import json
 #import from a json file called nodes the nodes
 with open('nodes.json') as json_file:
     data = json.load(json_file)
-    print(data)
+    #print(data)
 
 class NodeF:
     def __init__(self, host, port):

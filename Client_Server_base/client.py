@@ -25,7 +25,7 @@ class Client:
                 conn = self.connect_to_node(node)
                 self.send_message(conn, message)
                 response = self.receive_timestamp(conn) #ricevo il timestamp dal nodo che lo ha inviato
-                if response == 0:      #se uno dei nodi risponde 0 (è già bloccato), abort
+                if response == 0:                       #se uno dei nodi risponde 0 (è già bloccato), abort
                     timestamp=0
                     break
                 blocked_nodes.append(node)
@@ -122,10 +122,6 @@ class Client:
         header = msg_len.to_bytes(4, byteorder='big')
         conn.sendall(header + data)
 
-    # def receive_ack(self, conn):
-    #     #returns the ACK or NACK
-    #     return conn.recv(4).decode("utf-8")
-    
     def receive_timestamp(self, conn):
         return int.from_bytes(conn.recv(4), byteorder='big')
 
